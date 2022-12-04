@@ -1,0 +1,3 @@
+todo:
+    - make scanner recognize multi character tokens (!=, +=, ...)
+    - read book about recursive descent

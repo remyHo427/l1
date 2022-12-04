@@ -1,0 +1,19 @@
+{
+  "name": "lang-1",
+  "version": "1.0.0",
+  "main": "index.js",
+  "license": "MIT",
+  "scripts": {
+    "tb": "tsc --project ./tsconfig.json",
+    "rn": "node ./dist/t1.js",
+    "mk": "yarn tb && yarn rn",
+
+    "t1": "yarn tb && node ./dist/t1.js",
+    "t2": "yarn tb && node ./dist/t2.js"
+  },
+  "devDependencies": {
+    "@types/node": "^18.11.10",
+    "typescript": "^4.9.3"
+  },
+  "type": "module"
+}
