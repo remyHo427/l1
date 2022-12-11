@@ -1,1 +1,5 @@
-1 - 1 + 1;
+int var1 = 0;
+int var2;
+int __var3;
+var2 = 1000;
+var2;
