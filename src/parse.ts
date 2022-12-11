@@ -1,69 +1,70 @@
 import { toktype, token } from "./types.js";
 import { lex, init_lex } from "./lex.js";
 
+enum gsym {
+    STMTSEQ,
+    STMT,
+    DECL,
+    EXP
+};
+const types = [ "STMTSEQ", "STMT", "DECL", "EXP" ];
 let tok: token;
 
 const parse = (src: string) => {
     init_lex(src);
-
-    if ((tok = lex()).type != toktype.EOF) {
-        exp();
+    
+    next();
+    if (peek() != toktype.EOF) {
+        stmtseq();
     }
+}
+const stmtseq = () => {
+    stmt();
+    while (stmt())
+        ;
+    produce(gsym.STMTSEQ);
+}
+const stmt = () => {
+    if (decl()) {
+        produce(gsym.STMT);
+        return true;
+    } else {
+        exp();
+        match(toktype.SCOLON);
+        produce(gsym.STMT);
+        return true;
+    }
+}
+const decl = () => {
+    if (check(toktype.INT)) {
+        match(toktype.IDENT);
+        if (check(toktype.EQUAL)) {
+            exp();
+        }
+        match(toktype.SCOLON);
+        produce(gsym.DECL);
+        return true;
+    }
+    return false;
 }
 const exp = () => {
-    term();
-    while (1) {
-        addop();
-        term();
-    }
-}
-const addop = () => {
-    switch (tok.type) {
-        case toktype.PLUS:
-            match(toktype.PLUS);
-            break;
-        case toktype.HYPHEN:
-            match(toktype.HYPHEN);
-            break;
-    }
-}
-const term = () => {
-    factor();
-    while (1) {
-        mulop();
-        factor();
-    }
-}
-const mulop = () => {
-    switch (tok.type) {
-        case toktype.ASTRSK:
-            match(toktype.ASTRSK);
-            break;
-        case toktype.SLASH:
-            match(toktype.SLASH);
-            break;
-    }
-}
-const factor = () => {
-    switch (tok.type) {
+    switch (peek()) {
         case toktype.INTEGER:
-            match(toktype.INTEGER);
-            break;
-        default:
-            match(toktype.LPAREN);
-            exp();
-            match(toktype.RPAREN);
-            break;
+        case toktype.IDENT:
+            next();
+            produce(gsym.EXP);
+            return true;
     }
+    return false;
 }
-const match = (type: toktype) => {
-    if (tok.type == type) {
-        console.log("match(): matched", tok.type);
-        tok = lex();
-    } else {
-        console.log(`error at token: ${tok.type}, expected: ${type}`);
-        process.exit(1);
-    }
-}
+const match = (type: toktype) => 
+    type == tok.type ? 
+        tok = lex() : 
+        (console.log(`not expected: ${tok.type}`), process.exit(1));
+const check = (type: toktype) =>
+    type == tok.type ? (tok = lex(), true) : false;
+const next = () => tok = lex();
+const peek = () => tok.type;
+const produce = (type: gsym) => console.log("grammar symbol: ", types[type]);
 
 export { parse }

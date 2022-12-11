@@ -1,5 +1,5 @@
 import { toktype, token } from "./types.js";
-import { isspace, ispunct, isalpha, isdigit } from "./ctype.js";
+import { isspace, ispunct, isalpha, isdigit, isalnum } from "./ctype.js";
 
 let sp: number;             // src pointer
 let len: number;            // src length
@@ -8,10 +8,12 @@ let global_src: string;     // src text
 let c: string[1];                   // current character
 let nc: string[1];                  // next character
 let buf: string[];                  // buffer, for storing arrays of characters
+let bufp: number;
 let type: toktype | undefined;      // temporary variable for storing tok types
 let sbuf: string;                   // string buffer, for storing strings
 
 const keywords: Map<string, toktype> = new Map();
+
 keywords.set("break", toktype.BREAK);
 keywords.set("case", toktype.CASE);
 keywords.set("char", toktype.CHAR);
@@ -38,52 +40,30 @@ keywords.set("union", toktype.UNION);
 keywords.set("void", toktype.VOID);
 keywords.set("unsigned", toktype.UNSIGNED);
 keywords.set("while", toktype.WHILE);
-// reserved words for testing
-keywords.set("print", toktype.PRINT);
-
-const punct: Record<string[1], toktype> = {
-    '\'': toktype.APSTRO,
-    ':': toktype.COLON,
-    ',': toktype.COMMA,
-    '"': toktype.DQUOTE,
-    '{': toktype.LBRACE,
-    '[': toktype.LBRKET,
-    '(': toktype.LPAREN,
-    '.': toktype.PERIOD,
-    '?': toktype.QMARK,
-    '}': toktype.RBRACE,
-    ']': toktype.RBRKET,
-    ')': toktype.RPAREN,
-    ';': toktype.SCOLON,
-    '+': toktype.PLUS,
-    '-': toktype.HYPHEN,
-};
 
 const lex = () => {
     while (!isend()) {
         buf = [];
+        bufp = 0;
 
         if (isspace(c = peek())) {
             adv();
             continue;
         } else if (ispunct(c)) {
-            // check single char punct tokens
-            if (type = punct[c]) {
-                return maketok(type);
-            }
-        } else if (c == '0') {
-            return maketok(toktype.INTEGER, 0);
+            
         } else if (isdigit(c)) {
-            do {
-                buf.push(c);
+            if (c == "0") {
+                return maketok(toktype.INTEGER, 0);
+            } else do {
+                buf[bufp++] = c;
                 adv();
             } while (isdigit(c = peek()));
             return maketok(toktype.INTEGER, Number.parseInt(buf.join("")));
         } else if (isalpha(c)) {
-            buf.push(c);
-            while (isalpha(nc = peekn()) || isdigit(nc)) {
+            buf[bufp++] = c;
+            while (isalnum(nc = peekn())) {
                 adv();
-                buf.push(nc);
+                buf[bufp++] = nc;
             }
             return (type = keywords.get(sbuf = buf.join(""))) ?
                 maketok(type) :
