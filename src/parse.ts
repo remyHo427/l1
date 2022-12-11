@@ -49,7 +49,7 @@ const decl = () => {
 }
 const exp = () => {
     switch (peek()) {
-        case toktype.INTEGER:
+        case toktype.CONST_INT:
         case toktype.IDENT:
             next();
             produce(gsym.EXP);

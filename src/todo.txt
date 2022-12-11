@@ -1,6 +1,3 @@
 todo:
-    - fix issue where ispunct eats _ before isalpha
-    - add all token types of c
-    - add all keywords of c
     - skip comments
     - implement switch for all c operators, comments, etc.

@@ -1,6 +1,5 @@
 import { toktype, token } from "./types.js";
 import { isspace, ispunct, isalpha, isdigit, isalnum } from "./ctype.js";
-
 let sp: number;             // src pointer
 let len: number;            // src length
 let global_src: string;     // src text
@@ -12,40 +11,49 @@ let bufp: number;
 let type: toktype | undefined;      // temporary variable for storing tok types
 let sbuf: string;                   // string buffer, for storing strings
 
-const keywords: Map<string, toktype> = new Map();
-
-keywords.set("break", toktype.BREAK);
-keywords.set("case", toktype.CASE);
-keywords.set("char", toktype.CHAR);
-keywords.set("const", toktype.CONST);
-keywords.set("continue", toktype.CONTINUE);
-keywords.set("default", toktype.DEFAULT);
-keywords.set("do", toktype.DO);
-keywords.set("double", toktype.DOUBLE);
-keywords.set("else", toktype.ELSE);
-keywords.set("enum", toktype.ENUM);
-keywords.set("float", toktype.FLOAT);
-keywords.set("for", toktype.FOR);
-keywords.set("if", toktype.IF);
-keywords.set("int", toktype.INT);
-keywords.set("long", toktype.LONG);
-keywords.set("return", toktype.RETURN);
-keywords.set("short", toktype.SHORT);
-keywords.set("signed", toktype.SIGNED);
-keywords.set("sizeof", toktype.SIZEOF);
-keywords.set("struct", toktype.STRUCT);
-keywords.set("switch", toktype.SWITCH);
-keywords.set("typedef", toktype.TYPEDEF);
-keywords.set("union", toktype.UNION);
-keywords.set("void", toktype.VOID);
-keywords.set("unsigned", toktype.UNSIGNED);
-keywords.set("while", toktype.WHILE);
+const keywords: Record<string, toktype> = {
+    "auto" : toktype.AUTO, 
+    "break" : toktype.BREAK, 
+    "case" : toktype.CASE, 
+    "char" : toktype.CHAR, 
+    "const" : toktype.CONST, 
+    "continue" : toktype.CONTINUE, 
+    "default" : toktype.DEFAULT, 
+    "do" : toktype.DO, 
+    "double" : toktype.DOUBLE, 
+    "else" : toktype.ELSE, 
+    "enum" : toktype.ENUM, 
+    "extern" : toktype.EXTERN, 
+    "float" : toktype.FLOAT, 
+    "for" : toktype.FOR, 
+    "goto" : toktype.GOTO, 
+    "if" : toktype.IF, 
+    "inline" : toktype.INLINE, 
+    "int" : toktype.INT, 
+    "long" : toktype.LONG, 
+    "register" : toktype.REGISTER, 
+    "return" : toktype.RETURN, 
+    "short" : toktype.SHORT, 
+    "signed" : toktype.SIGNED, 
+    "static" : toktype.STATIC, 
+    "struct" : toktype.STRUCT, 
+    "switch" : toktype.SWITCH, 
+    "typedef" : toktype.TYPEDEF, 
+    "union" : toktype.UNION, 
+    "unsigned" : toktype.UNSIGNED, 
+    "void" : toktype.VOID, 
+    "volatile" : toktype.VOLATILE, 
+    "while" : toktype.WHILE, 
+    "_bool" : toktype._BOOL, 
+    "_complex" : toktype._COMPLEX, 
+    "_imaginary" : toktype._IMAGINARY,
+};
 
 const lex = () => {
-    while (!isend()) {
-        buf = [];
-        bufp = 0;
+    buf = [];
+    bufp = 0;
 
+    while (!isend()) {
         if (isspace(c = peek())) {
             adv();
             continue;
@@ -53,19 +61,19 @@ const lex = () => {
             
         } else if (isdigit(c)) {
             if (c == "0") {
-                return maketok(toktype.INTEGER, 0);
+                return maketok(toktype.CONST_INT, 0);
             } else do {
                 buf[bufp++] = c;
                 adv();
-            } while (isdigit(c = peek()));
-            return maketok(toktype.INTEGER, Number.parseInt(buf.join("")));
+            } while ((c = peek()) && isdigit(c));
+            return maketok(toktype.CONST_INT, Number.parseInt(buf.join("")));
         } else if (isalpha(c)) {
             buf[bufp++] = c;
-            while (isalnum(nc = peekn())) {
+            while ((nc = peekn()) && isalnum(nc)) {
                 adv();
                 buf[bufp++] = nc;
             }
-            return (type = keywords.get(sbuf = buf.join(""))) ?
+            return (type = keywords[sbuf = buf.join("")]) ?
                 maketok(type) :
                 maketok(toktype.IDENT, undefined, sbuf);
         }

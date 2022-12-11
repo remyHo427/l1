@@ -1,38 +1,9 @@
 export enum toktype {
-    // pseudotokens
+    //
     EOF = 0,
     ERR,
-    // punct
-    AMPSND, // &    multi
-    APSTRO, // '    used
-    ASTRSK, // *    multi
-    BSLASH, // \    not used
-    CCFLEX, // ^    not used
-    COLON,  // :    used
-    COMMA,  // ,    used
-    DQUOTE, // "    used
-    EQUAL,  // =    multi
-    EXMARK, // !    multi
-    GTHAN,  // >    multi
-    HYPHEN, // -    multi
-    LBRACE, // {    used
-    LBRKET, // [    used
-    LPAREN, // (    used
-    LTHAN,  // <    multi
-    NMSIGN, // #    not used
-    PERIOD, // .    used 
-    PLUS,   // +    multi
-    PRCENT, // %    multi
-    QMARK,  // ?    used
-    RBRACE, // }    used
-    RBRKET, // ]    used
-    RPAREN, // )    used
-    SCOLON, // ;    used
-    SLASH,  // /    multi
-    TILDE,  // ~    not used
-    USCORE, // _    not used
-    VBAR,   // |    multi
-    // reserved words
+    //
+    AUTO,
     BREAK,
     CASE,
     CHAR,
@@ -43,28 +14,88 @@ export enum toktype {
     DOUBLE,
     ELSE,
     ENUM,
+    EXTERN,
     FLOAT,
     FOR,
+    GOTO,
     IF,
+    INLINE,
     INT,
     LONG,
+    REGISTER,
+    RESTRICT,
     RETURN,
     SHORT,
     SIGNED,
     SIZEOF,
+    STATIC,
     STRUCT,
     SWITCH,
     TYPEDEF,
     UNION,
     UNSIGNED,
     VOID,
+    VOLATILE,
     WHILE,
-    // literals
-    INTEGER,
-    // misc
+    _BOOL,
+    _COMPLEX,
+    _IMAGINARY,
+    //
     IDENT,
-    // reserved words for testing
-    PRINT
+    //
+    CONST_INT,
+    CONST_FLOAT,
+    CONST_ENUM,
+    CONST_CHAR,
+    //
+    STRING,
+    //
+    RBRACKET,
+    LBRACKET,
+    RPAREN,
+    LPAREN,
+    RBRACE,
+    LBRACE,
+    DOT,
+    ARROW,
+    PPLUS,
+    MMINUS,
+    BADD,
+    ASTERISK,
+    PLUS,
+    MINUS,
+    TILDE,
+    BANG,
+    SLASH,
+    PERCENT,
+    LSHIFT,
+    RSHIFT,
+    LTHAN,
+    GTHAN,
+    LTHANEQ,
+    GTHANEQ,
+    EQUAL,
+    NEQUAL,
+    BNOT,
+    BOR,
+    AND,
+    OR,
+    QMARK,
+    COLON,
+    SCOLON,
+    ELIPS,
+    ASSIGN,
+    MUL_ASSIGN,
+    DIV_ASSIGN,
+    REM_SSIGN,
+    ADD_ASSIGN,
+    SUB_ASSIGN,
+    LS_ASSIGN,
+    RS_ASSIGN,
+    BA_ASSIGN,
+    BN_ASSIGN,
+    BO_ASSIGN,
+    COMMA,
 };
 export interface token {
     type: toktype;
