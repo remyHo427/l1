@@ -52,20 +52,72 @@ const keywords: Record<string, toktype> = {
 const lex = () => {
     buf = [];
     bufp = 0;
+    type = toktype.EOF;
 
     while (!isend()) {
         if (isspace(c = peek())) {
             adv();
             continue;
         } else if (ispunct(c)) {
-            
+            switch (c) {
+                case '[':
+                    adv();
+                    return maketok(toktype.LBRACKET);
+                case ']':
+                    adv();
+                    return maketok(toktype.RBRACKET);
+                case '(':
+                    adv();
+                    return maketok(toktype.LPAREN);
+                case ')':
+                    adv();
+                    return maketok(toktype.RPAREN);
+                case '{':
+                    adv();
+                    return maketok(toktype.LBRACE);
+                case '}':
+                    adv();
+                    return maketok(toktype.RBRACE);
+                case '?':
+                    adv();
+                    return maketok(toktype.QMARK);
+                case ':':
+                    adv();
+                    return maketok(toktype.COLON);
+                case ';':
+                    adv();
+                    return maketok(toktype.SCOLON);
+                case '.':
+                    matchtok("...", toktype.ELIPS);
+                    matchtok("", toktype.DOT);
+                case '/':
+                    if (peekn() == '*') {
+                        adv();
+                        adv();
+                        while (peek() != '*' && peekn() != '/') {
+                            adv();
+                        }
+                    } else if (peekn() == '/') {
+                        adv();
+                        adv();
+                        while (peek() != '\n' && !isend()) {
+                            adv();
+                        }
+                    }
+                    break;
+            }
+            if (type) {
+                return maketok(type);
+            }
         } else if (isdigit(c)) {
             if (c == "0") {
+                adv();
                 return maketok(toktype.CONST_INT, 0);
             } else do {
                 buf[bufp++] = c;
                 adv();
             } while ((c = peek()) && isdigit(c));
+            adv();
             return maketok(toktype.CONST_INT, Number.parseInt(buf.join("")));
         } else if (isalpha(c)) {
             buf[bufp++] = c;
@@ -73,6 +125,7 @@ const lex = () => {
                 adv();
                 buf[bufp++] = nc;
             }
+            adv();
             return (type = keywords[sbuf = buf.join("")]) ?
                 maketok(type) :
                 maketok(toktype.IDENT, undefined, sbuf);
@@ -81,6 +134,7 @@ const lex = () => {
         adv();
     }
 
+    adv();
     return maketok(toktype.EOF);
 }
 const init_lex = (src: string) => {
@@ -88,14 +142,45 @@ const init_lex = (src: string) => {
     len = src.length;
     global_src = src;
 }
-const maketok = (type: toktype, numval?: number, strval?: string): token => {
-    adv();
+const maketok = (
+        type: toktype, 
+        numval?: number, 
+        strval?: string, 
+    ): token => {
     return {
         type: type,
         numval: numval,
         strval: strval
     }
 }
+const matchtok = (matchs: string, matcht: toktype) => {
+    let len = matchs.length;
+    let msp = 0;
+    let match;
+
+    if (len == 0 && type == toktype.EOF) {
+        type = matcht;
+        adv();
+    } else {
+        for (let c, mc; (c = peek()) && (mc = matchs[msp]) && (c == mc); ) {
+            adv(), msp++;
+            if (len == msp) {
+                match = true;
+                break;            
+            }
+        }
+        if (match) {
+            type = matcht;
+            return;
+        } else {
+            while (msp) {
+                ret();
+                msp--;
+            }
+        }
+    }
+}
+const ret = () => sp--;
 const adv = () => sp++;
 const peek = () => global_src[sp];
 const peekn = () => global_src[sp+1];

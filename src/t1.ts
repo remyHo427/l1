@@ -25,13 +25,13 @@ const __dirname = path.dirname(fileURLToPath(import.meta.url));
         let tok: token;
         while ((tok = lex()).type != toktype.EOF) {
             // console.log(tab[tok.type]);
-            // console.log(`[tok type: ${
-            //     tok.type
-            // }${
-            //     tok.numval != undefined ? `, numval: ${tok.numval}` : ""
-            // }${
-            //     tok.strval != undefined ? `, strval: ${tok.strval}` : ""
-            // }]`);
+            console.log(`[tok type: ${
+                tok.type
+            }${
+                tok.numval != undefined ? `, numval: ${tok.numval}` : ""
+            }${
+                tok.strval != undefined ? `, strval: ${tok.strval}` : ""
+            }]`);
         }
     }
 })();

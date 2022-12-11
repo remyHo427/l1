@@ -1,3 +1,2 @@
 todo:
-    - skip comments
     - implement switch for all c operators, comments, etc.
