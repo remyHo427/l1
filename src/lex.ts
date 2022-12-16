@@ -4,12 +4,8 @@ let sp: number;             // src pointer
 let len: number;            // src length
 let global_src: string;     // src text
 
-let c: string[1];                   // current character
-let nc: string[1];                  // next character
-let buf: string[];                  // buffer, for storing arrays of characters
-let bufp: number;
+let auto: boolean;
 let type: toktype | undefined;      // temporary variable for storing tok types
-let sbuf: string;                   // string buffer, for storing strings
 
 const keywords: Record<string, toktype> = {
     "auto" : toktype.AUTO, 
@@ -50,8 +46,9 @@ const keywords: Record<string, toktype> = {
 };
 
 const lex = () => {
-    buf = [];
-    bufp = 0;
+    let c: string[1], nc: string[1];
+    let buf = [], bufp = 0, sbuf = "";
+    auto = false;
     type = toktype.EOF;
 
     while (!isend()) {
@@ -60,64 +57,52 @@ const lex = () => {
             continue;
         } else if (ispunct(c)) {
             switch (c) {
-                case '[':
-                    adv();
-                    return maketok(toktype.LBRACKET);
-                case ']':
-                    adv();
-                    return maketok(toktype.RBRACKET);
-                case '(':
-                    adv();
-                    return maketok(toktype.LPAREN);
-                case ')':
-                    adv();
-                    return maketok(toktype.RPAREN);
-                case '{':
-                    adv();
-                    return maketok(toktype.LBRACE);
-                case '}':
-                    adv();
-                    return maketok(toktype.RBRACE);
-                case '?':
-                    adv();
-                    return maketok(toktype.QMARK);
-                case ':':
-                    adv();
-                    return maketok(toktype.COLON);
-                case ';':
-                    adv();
-                    return maketok(toktype.SCOLON);
-                case '.':
-                    matchtok("...", toktype.ELIPS);
-                    matchtok("", toktype.DOT);
                 case '/':
                     if (peekn() == '*') {
-                        adv();
-                        adv();
+                        advn(2);
                         while (peek() != '*' && peekn() != '/') {
                             adv();
                         }
                     } else if (peekn() == '/') {
-                        adv();
-                        adv();
+                        advn(2);
                         while (peek() != '\n' && !isend()) {
                             adv();
                         }
                     }
+                    continue;
+                case '[':
+                    return maketok(toktype.LBRACKET);
+                case ']':
+                    return maketok(toktype.RBRACKET);
+                case '(':
+                    return maketok(toktype.LPAREN);
+                case ')':
+                    return maketok(toktype.RPAREN);
+                case '{':
+                    return maketok(toktype.LBRACE);
+                case '}':
+                    return maketok(toktype.RBRACE);
+                case '?':
+                    return maketok(toktype.QMARK);
+                case ':':
+                    return maketok(toktype.COLON);
+                case ';':
+                    return maketok(toktype.SCOLON);
+                case '.':
+                    matchtok("...", toktype.ELIPS);
+                    automatch(toktype.DOT);
                     break;
             }
-            if (type) {
-                return maketok(type);
-            }
+            return maketok(type, undefined, undefined, auto);
         } else if (isdigit(c)) {
             if (c == "0") {
                 adv();
                 return maketok(toktype.CONST_INT, 0);
-            } else do {
+            } 
+            do {
                 buf[bufp++] = c;
                 adv();
             } while ((c = peek()) && isdigit(c));
-            adv();
             return maketok(toktype.CONST_INT, Number.parseInt(buf.join("")));
         } else if (isalpha(c)) {
             buf[bufp++] = c;
@@ -145,8 +130,10 @@ const init_lex = (src: string) => {
 const maketok = (
         type: toktype, 
         numval?: number, 
-        strval?: string, 
+        strval?: string,
+        advflag: boolean = false
     ): token => {
+    advflag ? adv() : null;
     return {
         type: type,
         numval: numval,
@@ -154,36 +141,22 @@ const maketok = (
     }
 }
 const matchtok = (matchs: string, matcht: toktype) => {
-    let len = matchs.length;
     let msp = 0;
-    let match;
+    let c;
+    let lexbegin = getpos();
+    
+    while ((c = peek()) && c == matchs[msp])
+        adv(), msp++;
 
-    if (len == 0 && type == toktype.EOF) {
-        type = matcht;
-        adv();
-    } else {
-        for (let c, mc; (c = peek()) && (mc = matchs[msp]) && (c == mc); ) {
-            adv(), msp++;
-            if (len == msp) {
-                match = true;
-                break;            
-            }
-        }
-        if (match) {
-            type = matcht;
-            return;
-        } else {
-            while (msp) {
-                ret();
-                msp--;
-            }
-        }
-    }
+    msp == matchs.length ? type = matcht : setpos(lexbegin);
 }
-const ret = () => sp--;
+const automatch = (t: toktype) => !type ? (type = t, auto = true) : null;
 const adv = () => sp++;
+const advn = (n: number) => sp += n;
 const peek = () => global_src[sp];
 const peekn = () => global_src[sp+1];
 const isend = () => sp >= len;
+const getpos = () => sp;
+const setpos = (n: number) => sp = n;
 
 export { lex, init_lex, token, toktype };
