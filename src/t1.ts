@@ -26,7 +26,7 @@ const __dirname = path.dirname(fileURLToPath(import.meta.url));
         while ((tok = lex()).type != toktype.EOF) {
             // console.log(tab[tok.type]);
             console.log(`[tok type: ${
-                tok.type
+                toktype[tok.type]
             }${
                 tok.numval != undefined ? `, numval: ${tok.numval}` : ""
             }${

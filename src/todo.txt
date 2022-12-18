@@ -1,2 +1,8 @@
 todo:
-    - implement switch for all c operators, comments, etc.
+	- implement tokens:
+		- integer constants
+		- floating constants
+		- enumeration constants
+		- character constants
+		- string literals
+	- implement syntax

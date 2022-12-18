@@ -1,11 +1,11 @@
 import { toktype, token } from "./types.js";
 import { isspace, ispunct, isalpha, isdigit, isalnum } from "./ctype.js";
-let sp: number;             // src pointer
-let len: number;            // src length
-let global_src: string;     // src text
+let sp: number;                 // src pointer
+let len: number;                // src length
+let global_src: string;         // src text
 
 let auto: boolean;
-let type: toktype | undefined;      // temporary variable for storing tok types
+let type: toktype | undefined;       // temporary variable for storing tok types
 
 const keywords: Record<string, toktype> = {
     "auto" : toktype.AUTO, 
@@ -52,7 +52,7 @@ const lex = () => {
     type = toktype.EOF;
 
     while (!isend()) {
-        if (isspace(c = peek())) {
+        if (isspace(c = peek())) {            
             adv();
             continue;
         } else if (ispunct(c)) {
@@ -63,13 +63,18 @@ const lex = () => {
                         while (peek() != '*' && peekn() != '/') {
                             adv();
                         }
+                        continue;
                     } else if (peekn() == '/') {
                         advn(2);
                         while (peek() != '\n' && !isend()) {
                             adv();
                         }
+                        continue;
+                    } else {
+                        matchtok("/=", toktype.DIV_ASSIGN);
+                        automatch(toktype.SLASH);
+                        break;
                     }
-                    continue;
                 case '[':
                     return maketok(toktype.LBRACKET);
                 case ']':
@@ -88,9 +93,69 @@ const lex = () => {
                     return maketok(toktype.COLON);
                 case ';':
                     return maketok(toktype.SCOLON);
+                case '~':
+                    return maketok(toktype.TILDE);
+                case ',':
+                    return maketok(toktype.COMMA);
                 case '.':
                     matchtok("...", toktype.ELIPS);
                     automatch(toktype.DOT);
+                    break;
+                case '-':
+                    matchtok("->", toktype.ARROW);
+                    matchtok("--", toktype.MMINUS);
+                    matchtok("-=", toktype.SUB_ASSIGN);
+                    automatch(toktype.MINUS);
+                    break;
+                case '+':
+                    matchtok("+=", toktype.ADD_ASSIGN);
+                    automatch(toktype.PLUS);
+                    break;
+                case '&':
+                    matchtok("&&", toktype.AND);
+                    matchtok("&=", toktype.BA_ASSIGN);
+                    automatch(toktype.BAND);
+                    break;
+                case '*':
+                    matchtok("*=", toktype.MUL_ASSIGN);
+                    automatch(toktype.ASTERISK);
+                    break;
+                case '!':
+                    matchtok("!=", toktype.NEQUAL);
+                    automatch(toktype.BANG);
+                    break;
+                case '/':
+                    matchtok("/=", toktype.DIV_ASSIGN);
+                    automatch(toktype.SLASH);
+                    break;
+                case '%':
+                    matchtok("%=", toktype.REM_ASSIGN);
+                    automatch(toktype.PERCENT);
+                    break;
+                case '<':
+                    matchtok("<<=", toktype.LS_ASSIGN);
+                    matchtok("<<", toktype.LSHIFT);
+                    matchtok("<=", toktype.LTHANEQ);
+                    automatch(toktype.LTHAN);
+                    break;
+                case '>':
+                    matchtok(">>=", toktype.RS_ASSIGN);
+                    matchtok(">>", toktype.RSHIFT);
+                    matchtok("<=", toktype.LTHANEQ);
+                    automatch(toktype.GTHAN);
+                    break;
+                case '=':
+                    matchtok("==", toktype.EQUAL);
+                    automatch(toktype.ASSIGN);
+                    break;
+                case '^':
+                    matchtok("^=", toktype.BX_ASSIGN);
+                    automatch(toktype.BXOR);
+                    break;
+                case '|':
+                    matchtok("||", toktype.OR);
+                    matchtok("|=", toktype.BO_ASSIGN);
+                    automatch(toktype.BOR);
                     break;
             }
             return maketok(type, undefined, undefined, auto);
@@ -129,9 +194,9 @@ const init_lex = (src: string) => {
 }
 const maketok = (
         type: toktype, 
-        numval?: number, 
+        numval?: number,
         strval?: string,
-        advflag: boolean = false
+        advflag: boolean = true
     ): token => {
     advflag ? adv() : null;
     return {
@@ -145,7 +210,7 @@ const matchtok = (matchs: string, matcht: toktype) => {
     let c;
     let lexbegin = getpos();
     
-    while ((c = peek()) && c == matchs[msp])
+    while ((c = peek()) && c == matchs[msp]) 
         adv(), msp++;
 
     msp == matchs.length ? type = matcht : setpos(lexbegin);
@@ -153,7 +218,7 @@ const matchtok = (matchs: string, matcht: toktype) => {
 const automatch = (t: toktype) => !type ? (type = t, auto = true) : null;
 const adv = () => sp++;
 const advn = (n: number) => sp += n;
-const peek = () => global_src[sp];
+const peek = () => { debugger; return global_src[sp] };
 const peekn = () => global_src[sp+1];
 const isend = () => sp >= len;
 const getpos = () => sp;
