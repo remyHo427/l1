@@ -1,11 +1,11 @@
-import { toktype, token } from "./types.js";
-import { isspace, ispunct, isalpha, isdigit, isalnum } from "./ctype.js";
-let sp: number;                 // src pointer
-let len: number;                // src length
-let global_src: string;         // src text
+import { toktype, token } from "./types";
+import { isspace, ispunct, isalpha, isdigit, isalnum } from "./ctype";
+let sp: number;
+let len: number;
+let global_src: string;
 
 let auto: boolean;
-let type: toktype | undefined;       // temporary variable for storing tok types
+let type: toktype | undefined;
 
 const keywords: Record<string, toktype> = {
     "auto" : toktype.AUTO, 
@@ -218,7 +218,7 @@ const matchtok = (matchs: string, matcht: toktype) => {
 const automatch = (t: toktype) => !type ? (type = t, auto = true) : null;
 const adv = () => sp++;
 const advn = (n: number) => sp += n;
-const peek = () => { debugger; return global_src[sp] };
+const peek = () => global_src[sp];
 const peekn = () => global_src[sp+1];
 const isend = () => sp >= len;
 const getpos = () => sp;

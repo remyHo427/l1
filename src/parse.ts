@@ -1,5 +1,5 @@
-import { toktype, token } from "./types.js";
-import { lex, init_lex } from "./lex.js";
+import { toktype, token } from "./types";
+import { lex, init_lex } from "./lex";
 
 enum gsym {
     STMTSEQ,
