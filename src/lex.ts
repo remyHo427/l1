@@ -6,6 +6,7 @@ let global_src: string;
 
 let auto: boolean;
 let type: toktype | undefined;
+let recognized: boolean;
 
 const keywords: Record<string, toktype> = {
     "auto" : toktype.AUTO, 
@@ -50,6 +51,7 @@ const lex = () => {
     let buf = [], bufp = 0, sbuf = "";
     auto = false;
     type = toktype.EOF;
+    recognized = false;
 
     while (!isend()) {
         if (isspace(c = peek())) {            
@@ -60,7 +62,11 @@ const lex = () => {
                 case '/':
                     if (peekn() == '*') {
                         advn(2);
-                        while (peek() != '*' && peekn() != '/') {
+                        while (1) {
+                            if (peek() == '*' && peekn() == '/') {
+                                advn(2);
+                                break;
+                            }
                             adv();
                         }
                         continue;
@@ -162,7 +168,6 @@ const lex = () => {
             return maketok(type, undefined, undefined, auto);
         } else if (isdigit(c)) {
             if (c == "0") {
-                adv();
                 return maketok(toktype.CONST_INT, 0);
             } 
             do {
@@ -207,14 +212,20 @@ const maketok = (
     }
 }
 const matchtok = (matchs: string, matcht: toktype) => {
-    let msp = 0;
-    let c;
-    let lexbegin = getpos();
+    if (recognized) {
+        return;
+    } else {
+        let msp = 0;
+        let c;
+        let lexbegin = getpos();
+        
+        while ((c = peek()) && c == matchs[msp]) 
+            adv(), msp++;
     
-    while ((c = peek()) && c == matchs[msp]) 
-        adv(), msp++;
-
-    msp == matchs.length ? type = matcht : setpos(lexbegin);
+        msp == matchs.length ? 
+            (type = matcht, recognized = true) 
+            : setpos(lexbegin);
+    }
 }
 const automatch = (t: toktype) => !type ? (type = t, auto = true) : null;
 const adv = () => sp++;

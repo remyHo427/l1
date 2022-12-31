@@ -9,24 +9,49 @@ describe("testing comments", () => {
         == != ^ | && || ? : ; ... = 
         *= /= %= += -= <<= >>= &= ^=
         |= ,
-
         auto break case char const continue default do
         double else enum extern float for goto if inline
         int long register return short signed static struct switch
         typedef union unsigned void volatile while _bool _complex
         _imaginary
-        
         0 100 123456878
-
         a ap p q s len s1 s2 test_variable
-        */`);
-
-        let tok: token;
-        while ((tok = lex()).type != toktype.EOF) {
-            console.log(toktype[tok.type]);
-        }
-
-        // failing test, uncomment after fix (and remove loop above):
-        // expect(lex().type).toBe(toktype.EOF);
+        */
+        // [ ] ( ) { } . -> ++ -- & *
+        // + - ~ ! / % << >> < > <= >=
+        // == != ^ | && || ? : ; ... = 
+        // *= /= %= += -= <<= >>= &= ^=
+        // |= ,
+        // auto break case char const continue default do
+        // double else enum extern float for goto if inline
+        // int long register return short signed static struct switch
+        // typedef union unsigned void volatile while _bool _complex
+        // _imaginary
+        // 0 100 123456878
+        // a ap p q s len s1 s2 test_variable`);
+        expect(lex().type).toBe(toktype.EOF);
+    });
+    it("should allow line comments in multi-line comments", () => {
+        init_lex(`/*
+        //
+        //
+        // //
+        ////////
+        //*/`);
+        expect(lex().type).toBe(toktype.EOF);
+    });
+    it("should allow multi line comments in single line comments", () => {
+        init_lex(`///**/`);
+        expect(lex().type).toBe(toktype.EOF);
+    });
+    it("should allow consecutive inline comments", () => {
+        init_lex("//////");
+        expect(lex().type).toBe(toktype.EOF);
+    });
+    it("should handle empty comments", () => {
+        init_lex("//");
+        expect(lex().type).toBe(toktype.EOF);
+        init_lex("/**/");
+        expect(lex().type).toBe(toktype.EOF);
     });
 });

@@ -41,5 +41,11 @@ describe("testing boundry cases",  () => {
                 toktype.ELIPS
             ]).not.toContain(tok.type);
         }
-    })
+    });
+    it("should handle input with only comments", () => {
+        init_lex(`/**/`);
+        expect(lex().type).toBe(toktype.EOF);
+        init_lex(`//`);
+        expect(lex().type).toBe(toktype.EOF);
+    });
 });

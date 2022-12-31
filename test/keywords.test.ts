@@ -47,19 +47,14 @@ describe("testing keyword tokens", () => {
             typedef union unsigned void volatile while _bool _complex
             _imaginary
         `);
-
         let tok: token;
         let recognized_types: toktype[] = [];
-
         while ((tok = lex()).type != toktype.EOF) {
-            expect(tok).toBeDefined();
             expect(keyword_types).toContain(tok.type);
             recognized_types.push(tok.type);
         }
-
         expect(recognized_types.length).toEqual(keyword_types.length);
     });
-
     it("is case sensitive", () => {
         init_lex(`
             AUTO BREAK CASE CHAR CONST CONTINUE DEFAULT DO
@@ -80,7 +75,6 @@ describe("testing keyword tokens", () => {
             expect(keyword_types).not.toContain(tok.type);
         }
     });
-
     it("always recongize the longest keyword", () => {
         init_lex(`
             double
