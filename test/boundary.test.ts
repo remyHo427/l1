@@ -6,7 +6,7 @@ describe("testing boundry cases",  () => {
         expect(lex().type).toBe(toktype.EOF);
     });
     it("should handle input with only whitespace", () => {
-        init_lex(String.raw`
+        init_lex(`
 
 
 
@@ -26,7 +26,7 @@ describe("testing boundry cases",  () => {
         expect(lex().type).toBe(toktype.EOF);
     });
     it("should separate tokens base on whitespace", () => {
-        init_lex(String.raw`
+        init_lex(`
         d
         ouble
         = =

@@ -108,6 +108,7 @@ const lex = () => {
                     automatch(toktype.MINUS);
                     break;
                 case '+':
+                    matchtok("++", toktype.PPLUS);
                     matchtok("+=", toktype.ADD_ASSIGN);
                     automatch(toktype.PLUS);
                     break;
@@ -141,7 +142,7 @@ const lex = () => {
                 case '>':
                     matchtok(">>=", toktype.RS_ASSIGN);
                     matchtok(">>", toktype.RSHIFT);
-                    matchtok("<=", toktype.LTHANEQ);
+                    matchtok(">=", toktype.LTHANEQ);
                     automatch(toktype.GTHAN);
                     break;
                 case '=':
