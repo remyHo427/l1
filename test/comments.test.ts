@@ -1,4 +1,4 @@
-import { init_lex, lex, toktype, token } from "../src/lex";
+import { init_lex, lex, toktype } from "../src/lex";
 
 describe("testing comments", () => {
     it("should ignore legal tokens inside comments", () => {

@@ -1,5 +1,6 @@
 import { toktype, token } from "./types";
 import { isspace, ispunct, isalpha, isdigit, isalnum } from "./ctype";
+
 let sp: number;
 let len: number;
 let global_src: string;
@@ -9,52 +10,52 @@ let type: toktype | undefined;
 let recognized: boolean;
 
 const keywords: Record<string, toktype> = {
-    "auto" : toktype.AUTO, 
-    "break" : toktype.BREAK, 
-    "case" : toktype.CASE, 
-    "char" : toktype.CHAR, 
-    "const" : toktype.CONST, 
-    "continue" : toktype.CONTINUE, 
-    "default" : toktype.DEFAULT, 
-    "do" : toktype.DO, 
-    "double" : toktype.DOUBLE, 
-    "else" : toktype.ELSE, 
-    "enum" : toktype.ENUM, 
-    "extern" : toktype.EXTERN, 
-    "float" : toktype.FLOAT, 
-    "for" : toktype.FOR, 
-    "goto" : toktype.GOTO, 
-    "if" : toktype.IF, 
-    "inline" : toktype.INLINE, 
-    "int" : toktype.INT, 
-    "long" : toktype.LONG, 
-    "register" : toktype.REGISTER, 
-    "return" : toktype.RETURN, 
-    "short" : toktype.SHORT, 
-    "signed" : toktype.SIGNED, 
-    "static" : toktype.STATIC, 
-    "struct" : toktype.STRUCT, 
-    "switch" : toktype.SWITCH, 
-    "typedef" : toktype.TYPEDEF, 
-    "union" : toktype.UNION, 
-    "unsigned" : toktype.UNSIGNED, 
-    "void" : toktype.VOID, 
-    "volatile" : toktype.VOLATILE, 
-    "while" : toktype.WHILE, 
-    "_bool" : toktype._BOOL, 
-    "_complex" : toktype._COMPLEX, 
-    "_imaginary" : toktype._IMAGINARY,
+    "auto": toktype.AUTO,
+    "break": toktype.BREAK,
+    "case": toktype.CASE,
+    "char": toktype.CHAR,
+    "const": toktype.CONST,
+    "continue": toktype.CONTINUE,
+    "default": toktype.DEFAULT,
+    "do": toktype.DO,
+    "double": toktype.DOUBLE,
+    "else": toktype.ELSE,
+    "enum": toktype.ENUM,
+    "extern": toktype.EXTERN,
+    "float": toktype.FLOAT,
+    "for": toktype.FOR,
+    "goto": toktype.GOTO,
+    "if": toktype.IF,
+    "inline": toktype.INLINE,
+    "int": toktype.INT,
+    "long": toktype.LONG,
+    "register": toktype.REGISTER,
+    "return": toktype.RETURN,
+    "short": toktype.SHORT,
+    "signed": toktype.SIGNED,
+    "static": toktype.STATIC,
+    "struct": toktype.STRUCT,
+    "switch": toktype.SWITCH,
+    "typedef": toktype.TYPEDEF,
+    "union": toktype.UNION,
+    "unsigned": toktype.UNSIGNED,
+    "void": toktype.VOID,
+    "volatile": toktype.VOLATILE,
+    "while": toktype.WHILE,
+    "_bool": toktype._BOOL,
+    "_complex": toktype._COMPLEX,
+    "_imaginary": toktype._IMAGINARY,
 };
 
 const lex = () => {
     let c: string[1], nc: string[1];
-    let buf = [], bufp = 0, sbuf = "";
+    let buf = [], sbuf = "";
     auto = false;
     type = toktype.EOF;
     recognized = false;
 
     while (!isend()) {
-        if (isspace(c = peek())) {            
+        if (isspace(c = peek())) {
             adv();
             continue;
         } else if (ispunct(c)) {
@@ -62,13 +63,10 @@ const lex = () => {
                 case '/':
                     if (peekn() == '*') {
                         advn(2);
-                        while (1) {
-                            if (peek() == '*' && peekn() == '/') {
-                                advn(2);
-                                break;
-                            }
+                        while (peek() != "*" || peekn() != '/') {
                             adv();
                         }
+                        advn(2);
                         continue;
                     } else if (peekn() == '/') {
                         advn(2);
@@ -169,24 +167,23 @@ const lex = () => {
         } else if (isdigit(c)) {
             if (c == "0") {
                 return maketok(toktype.CONST_INT, 0);
-            } 
+            }
             do {
-                buf[bufp++] = c;
+                buf.push(c);
                 adv();
             } while ((c = peek()) && isdigit(c));
-            return maketok(toktype.CONST_INT, Number.parseInt(buf.join("")));
+            return maketok(toktype.CONST_INT, Number.parseInt(buf.join()));
         } else if (isalpha(c)) {
-            buf[bufp++] = c;
+            buf.push(c);
             while ((nc = peekn()) && isalnum(nc)) {
                 adv();
-                buf[bufp++] = nc;
+                buf.push(nc);
             }
             adv();
             return (type = keywords[sbuf = buf.join("")]) ?
                 maketok(type) :
                 maketok(toktype.IDENT, undefined, sbuf);
         }
-        
         adv();
     }
 
@@ -199,11 +196,11 @@ const init_lex = (src: string) => {
     global_src = src;
 }
 const maketok = (
-        type: toktype, 
-        numval?: number,
-        strval?: string,
-        advflag: boolean = true
-    ): token => {
+    type: toktype,
+    numval?: number,
+    strval?: string,
+    advflag: boolean = true
+): token => {
     advflag ? adv() : null;
     return {
         type: type,
@@ -218,12 +215,12 @@ const matchtok = (matchs: string, matcht: toktype) => {
         let msp = 0;
         let c;
         let lexbegin = getpos();
-        
-        while ((c = peek()) && c == matchs[msp]) 
+
+        while ((c = peek()) && c == matchs[msp])
             adv(), msp++;
-    
-        msp == matchs.length ? 
-            (type = matcht, recognized = true) 
+
+        msp == matchs.length ?
+            (type = matcht, recognized = true)
             : setpos(lexbegin);
     }
 }
@@ -231,7 +228,7 @@ const automatch = (t: toktype) => !type ? (type = t, auto = true) : null;
 const adv = () => sp++;
 const advn = (n: number) => sp += n;
 const peek = () => global_src[sp];
-const peekn = () => global_src[sp+1];
+const peekn = () => global_src[sp + 1];
 const isend = () => sp >= len;
 const getpos = () => sp;
 const setpos = (n: number) => sp = n;
